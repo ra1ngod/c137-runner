@@ -3,7 +3,7 @@
 Open artifacts + runner for the published [c137](https://c137.ai) memory-benchmark result on
 [LongMemEval-S](https://github.com/xiaowu0162/LongMemEval) (500 questions):
 
-| run | model | pooled score |
+| run | model | raw score (correct/500) |
 |---|---|---|
 | **Pro** | `gemini-3.1-pro-preview` | **470/500 = 94.0%** |
 | Flash | `gemini-3-flash-preview` | 455/500 = 91.0% |
@@ -40,6 +40,7 @@ then grade with the official evaluator and summarize:
 
 ```bash
 git clone https://github.com/xiaowu0162/LongMemEval
+pip install openai tqdm backoff numpy   # the evaluator's deps
 OPENAI_API_KEY=sk-… python3 LongMemEval/src/evaluation/evaluate_qa.py \
   gpt-4o out/hypotheses.jsonl out/references.jsonl
 node grade/summarize.mjs out/hypotheses.jsonl.eval-results-gpt-4o
@@ -50,7 +51,9 @@ roughly 0.5–1M output tokens (native thinking bills as output) — check curre
 `gemini-3.1-pro-preview` pricing. Grading is 500 short
 GPT-4o judge calls. `run.mjs` resumes (skips answered qids), so failures are cheap to retry.
 
-**Expected result:** within ~1% of 470/500. Temp-0 Gemini is not bit-deterministic and the
+**Expected result:** within ~1% of 470/500. A validation rerun of this exact package — fresh
+clone, own keys, official grader — scored **469/500 = 93.8%** (19 individual label flips vs the
+published run, roughly balanced both ways). Temp-0 Gemini is not bit-deterministic and the
 GPT-4o judge has small run-to-run wobble, so individual flips are normal; the aggregate holds.
 Diff your labels against `published/pro.grading.json` (`grade/summarize.mjs` does this).
 
@@ -93,7 +96,7 @@ published/               the published runs' raw model answers + official judge 
   pro.results.json / pro.grading.json   (+ flash.*, gpt4o.*)
 run.mjs                  zero-dependency runner (Node 20+), any OpenAI-compatible endpoint
 grade/to-official.mjs    reshape output for the official LongMemEval evaluator
-grade/summarize.mjs      pooled + per-type accuracy, diff vs published labels
+grade/summarize.mjs      raw + per-type accuracy, diff vs published labels
 ```
 
 ## License & attribution

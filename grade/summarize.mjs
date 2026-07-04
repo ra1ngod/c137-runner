@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Summarize an official-evaluator output file (…eval-results-gpt-4o):
- * pooled + per-type accuracy, and a diff against the published run.
+ * raw + per-type accuracy, and a diff against the published run.
  *
  *   node grade/summarize.mjs out/hypotheses.jsonl.eval-results-gpt-4o [published/pro.grading.json]
  */
@@ -36,7 +36,7 @@ for (const r of lines) {
   }
   labels[r.question_id] = label;
 }
-console.log(`pooled: ${correct}/${lines.length} = ${((100 * correct) / lines.length).toFixed(1)}%`);
+console.log(`raw score: ${correct}/${lines.length} = ${((100 * correct) / lines.length).toFixed(1)}%`);
 for (const [t, s] of Object.entries(byType).sort())
   console.log(`  ${t}: ${s.correct}/${s.total} = ${((100 * s.correct) / s.total).toFixed(1)}%`);
 
